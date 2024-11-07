@@ -1,5 +1,9 @@
-
+require ('dotenv').config();
 const { createWorker } = require('tesseract.js');
+const astellen = require('klassijs-astellen');
+
+const envName = env.envName.toLowerCase();
+const browserName = astellen.get('BROWSER_NAME');
 
 async function ocrGetText(visualBaseline) {
   let worker = await createWorker();

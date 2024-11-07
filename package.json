@@ -12,6 +12,8 @@
   },
   "private": true,
   "dependencies": {
+    "dotenv": "^16.4.5",
+    "klassijs-astellen": "github:klassijs/klassijs-astellen",
     "tesseract.js": "^5.1.1"
   }
 }

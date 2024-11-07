@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      klassijs-astellen:
+        specifier: github:klassijs/klassijs-astellen
+        version: https://codeload.github.com/klassijs/klassijs-astellen/tar.gz/18d105f146ed692d055bdcc0c552de4b243813dd
       tesseract.js:
         specifier: ^5.1.1
         version: 5.1.1
@@ -17,6 +23,10 @@ packages:
   bmp-js@0.1.0:
     resolution: {integrity: sha512-vHdS19CnY3hwiNdkaqk93DvjVLfbEcI8mys4UjuWrlX1haDmroo8o4xCzh4wD6DGV6HxRCyauwhHRqMTfERtjw==}
 
+  dotenv@16.4.5:
+    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+    engines: {node: '>=12'}
+
   idb-keyval@6.2.1:
     resolution: {integrity: sha512-8Sb3veuYCyrZL+VBt9LJfZjLUPWVvqn8tG28VqYNFCo43KHcKuq+b4EiXGeuaLAQWL2YmyDgMp2aSpH9JHsEQg==}
 
@@ -25,6 +35,10 @@ packages:
 
   is-url@1.2.4:
     resolution: {integrity: sha512-ITvGim8FhRiYe4IQ5uHSkj7pVaPDrCTkNd3yq3cV7iZAcJdHTUMPMEHcqSOy9xZ9qFenQCvi+2wjH9a1nXqHww==}
+
+  klassijs-astellen@https://codeload.github.com/klassijs/klassijs-astellen/tar.gz/18d105f146ed692d055bdcc0c552de4b243813dd:
+    resolution: {tarball: https://codeload.github.com/klassijs/klassijs-astellen/tar.gz/18d105f146ed692d055bdcc0c552de4b243813dd}
+    version: 1.0.0
 
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
@@ -67,11 +81,15 @@ snapshots:
 
   bmp-js@0.1.0: {}
 
+  dotenv@16.4.5: {}
+
   idb-keyval@6.2.1: {}
 
   is-electron@2.2.2: {}
 
   is-url@1.2.4: {}
+
+  klassijs-astellen@https://codeload.github.com/klassijs/klassijs-astellen/tar.gz/18d105f146ed692d055bdcc0c552de4b243813dd: {}
 
   node-fetch@2.7.0:
     dependencies:
