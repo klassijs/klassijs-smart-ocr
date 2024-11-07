@@ -1,7 +1,7 @@
 
 const { createWorker } = require('tesseract.js');
 
-async function ocrReadTExt(visualBaseline) {
+async function ocrGetText(visualBaseline) {
   let worker = await createWorker();
   const imagePath = 'artifacts/visual-regression/original/' + browserName + '/' + envName + '/positive/';
   const {
@@ -11,4 +11,4 @@ async function ocrReadTExt(visualBaseline) {
   await worker.terminate();
 }
 
-module.exports = { ocrReadTExt };
+module.exports = { ocrGetText };

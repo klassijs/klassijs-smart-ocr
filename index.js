@@ -1,3 +1,3 @@
-const { ocrReadTExt } = require('./src/ocr');
+const { ocrGetText } = require('./src/ocr');
 
-module.exports = { ocrReadTExt };
+module.exports = { ocrGetText };
