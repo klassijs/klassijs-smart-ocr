@@ -1,7 +1,14 @@
 {
   "name": "klassijs-smart-ocr",
   "version": "1.0.0",
-  "description": "",
+  "description": "SmartOCR is a powerful OCR (Optical Character Recognition) module designed for text extraction and interaction.",
+  "license": "MIT",
+  "creator": {
+    "name": "Larry Goddard",
+    "email": "larryg@klassitech.co.uk",
+    "linkedin": "https://linkedin.com/in/larryg",
+    "youtube": "https://youtube.com/@LarryG_01"
+  },
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +17,6 @@
     "type": "git",
     "url": "https://github.com/klassijs/klassijs-smart-ocr.git"
   },
-  "private": true,
   "dependencies": {
     "dotenv": "^16.4.5",
     "klassijs-astellen": "^1.0.0",
