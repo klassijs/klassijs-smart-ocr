@@ -1,5 +1,5 @@
 {
-  "name": "klassijs-ocr-service",
+  "name": "klassijs-smart-ocr",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/klassijs/klassijs-ocr-service.git"
+    "url": "https://github.com/klassijs/klassijs-smart-ocr.git"
   },
   "private": true,
   "dependencies": {
     "dotenv": "^16.4.5",
-    "klassijs-astellen": "github:klassijs/klassijs-astellen",
+    "klassijs-astellen": "^1.0.0",
     "tesseract.js": "^5.1.1"
   }
 }
