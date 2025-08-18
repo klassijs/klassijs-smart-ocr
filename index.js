@@ -1,3 +1,13 @@
-const { extractTextFromImage, extractTextFromPDF, ocrGetLink } = require('./src/smartOcr');
+const { 
+  extractText,
+  extractLinks,
+  makeLinksClickable,
+  batchExtract
+} = require('./src/smartOcr');
 
-module.exports = {extractTextFromImage, extractTextFromPDF, ocrGetLink };
+module.exports = {
+  extractText,
+  extractLinks,
+  makeLinksClickable,
+  batchExtract
+};

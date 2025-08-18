@@ -1,7 +1,7 @@
 {
   "name": "klassijs-smart-ocr",
   "version": "1.0.0",
-  "description": "SmartOCR is a powerful OCR (Optical Character Recognition) module designed for text extraction and interaction.",
+  "description": "SmartOCR is a powerful OCR (Optical Character Recognition) module designed for text extraction and interaction from all file types.",
   "license": "MIT",
   "creator": {
     "name": "Larry Goddard",
@@ -20,6 +20,13 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "klassijs-astellen": "^1.0.0",
-    "tesseract.js": "^5.1.1"
+    "tesseract.js": "^5.1.1",
+    "pdf-parse": "^1.1.1",
+    "mammoth": "^1.6.0",
+    "xlsx": "^0.18.5",
+    "csv-parser": "^3.0.0",
+    "node-html-parser": "^6.1.12",
+    "mime-types": "^2.1.35",
+    "fs-extra": "^11.2.0"
   }
 }
