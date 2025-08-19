@@ -1,0 +1,8 @@
+This is a test file to demonstrate that the extractText function works correctly.
+
+It contains some sample text with links:
+- https://example.com
+- info@example.com
+- /path/to/file.pdf
+
+The function should extract this text and detect the links.
