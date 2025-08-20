@@ -680,58 +680,7 @@ function generateCSV(structuredData) {
   return lines.join('\n');
 }
 
-// Compare two structured data files
-async function compareStructuredData(file1, file2, outputDir = './shared-objects/comparisons') {
-  try {
-    const data1 = await fs.readJson(file1);
-    const data2 = await fs.readJson(file2);
-    
-    const comparison = {
-      metadata: {
-        comparedAt: new Date().toISOString(),
-        file1: data1.metadata.fileName,
-        file2: data2.metadata.fileName
-      },
-      differences: {
-        textLength: {
-          file1: data1.metadata.totalCharacters,
-          file2: data2.metadata.totalCharacters,
-          difference: data2.metadata.totalCharacters - data1.metadata.totalCharacters,
-          percentageChange: ((data2.metadata.totalCharacters - data1.metadata.totalCharacters) / data1.metadata.totalCharacters * 100).toFixed(2)
-        },
-        linkCount: {
-          file1: data1.links.total,
-          file2: data2.links.total,
-          difference: data2.links.total - data1.links.total
-        },
-        uniqueLinks: {
-          onlyInFile1: data1.links.list.filter(link1 => 
-            !data2.links.list.some(link2 => link2.url === link1.url)
-          ).map(l => l.url),
-          onlyInFile2: data2.links.list.filter(link2 => 
-            !data1.links.list.some(link1 => link1.url === link2.url)
-          ).map(l => l.url),
-          common: data1.links.list.filter(link1 => 
-            data2.links.list.some(link2 => link2.url === link1.url)
-          ).map(l => l.url)
-        }
-      }
-    };
-    
-    // Save comparison
-    await fs.ensureDir(outputDir);
-    const comparisonFileName = `comparison_${data1.metadata.fileName}_vs_${data2.metadata.fileName}_${Date.now()}.json`;
-    const comparisonPath = path.join(outputDir, comparisonFileName);
-    
-    await fs.writeJson(comparisonPath, comparison, { spaces: 2 });
-    
-    console.log(`✅ Comparison saved to: ${comparisonPath}`);
-    return comparison;
-  } catch (error) {
-    console.error('Error comparing structured data:', error.message);
-    throw error;
-  }
-}
+
 
 module.exports = {
   extractText,
@@ -740,6 +689,5 @@ module.exports = {
   batchExtract,
   saveLinksToJson,
   loadLinksFromJson,
-  extractStructuredData,
-  compareStructuredData
+  extractStructuredData
 };
