@@ -1,0 +1,47 @@
+{
+  "originalFile": "./test-document.txt",
+  "extractedAt": "2025-08-20T08:50:37.916Z",
+  "totalLinks": 8,
+  "links": [
+    {
+      "id": 1,
+      "url": "https://example.com",
+      "type": "url"
+    },
+    {
+      "id": 2,
+      "url": "https://github.com/klassijs",
+      "type": "url"
+    },
+    {
+      "id": 3,
+      "url": "info@example.com",
+      "type": "email"
+    },
+    {
+      "id": 4,
+      "url": "support@klassijs.com",
+      "type": "email"
+    },
+    {
+      "id": 5,
+      "url": "/example.com",
+      "type": "file-path"
+    },
+    {
+      "id": 6,
+      "url": "/downloads/document.pdf",
+      "type": "file-path"
+    },
+    {
+      "id": 7,
+      "url": "/github.com/klassijs",
+      "type": "file-path"
+    },
+    {
+      "id": 8,
+      "url": "/config/settings.json",
+      "type": "file-path"
+    }
+  ]
+}

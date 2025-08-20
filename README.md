@@ -222,31 +222,6 @@ The system automatically detects:
 
 ---
 
-## 🛠️ Requirements
-
-- Node.js 14 or later
-- Dependencies:
-  - `tesseract.js` (OCR for images)
-  - `pdf-parse` (PDF text extraction)
-  - `mammoth` (DOCX processing)
-  - `xlsx` (Excel processing)
-  - `csv-parser` (CSV processing)
-  - `node-html-parser` (HTML processing)
-  - `mime-types` (File type detection)
-  - `fs-extra` (Enhanced file operations)
-
----
-
-## 🧪 Testing
-
-Run the comprehensive example:
-
-```bash
-node examples/usage.js
-```
-
----
-
 ## 🤝 Contributing
 
 Contributions are welcome! If you have ideas for improvements or new features, feel free to open an issue or submit a pull request.

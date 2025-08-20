@@ -10,7 +10,6 @@ const XLSX = require('xlsx');
 const csvParser = require('csv-parser');
 const { parse } = require('node-html-parser');
 
-// Internal singleton instance - not exported
 let _worker = null;
 let _workerPromise = null;
 
@@ -52,7 +51,7 @@ function getSupportedFormats() {
 }
 
 // Main text extraction function - handles ALL file types automatically
-async function extractText(filePath) {
+async function extractText(filePath, options = {}) {
   try {
     if (!await fs.pathExists(filePath)) {
       throw new Error(`File not found: ${filePath}`);
@@ -67,11 +66,35 @@ async function extractText(filePath) {
     }
 
     const text = await extractor(filePath);
+    
+    // Ensure text is a string
+    const safeText = typeof text === 'string' ? text : String(text || '');
+    
+    // Extract links safely
+    let links = [];
+    try {
+      links = extractLinks(safeText);
+    } catch (error) {
+      console.warn('Error extracting links:', error.message);
+      links = [];
+    }
+    
+    // Save links to JSON if requested
+    let savedJsonPath = null;
+    if (options.saveLinksToJson !== false) { // Default to true
+      try {
+        savedJsonPath = await saveLinksToJson(links, filePath, options.outputDir);
+      } catch (error) {
+        console.warn('Failed to save links to JSON:', error.message);
+      }
+    }
+    
     return {
-      text,
+      text: safeText,
       mimeType,
-      links: extractLinks(text),
-      filePath
+      links,
+      filePath,
+      savedLinksJson: savedJsonPath
     };
   } catch (error) {
     console.error(`Error extracting text from ${filePath}:`, error.message);
@@ -79,7 +102,6 @@ async function extractText(filePath) {
   }
 }
 
-// Internal extraction functions (not exported)
 async function extractTextFromImage(imagePath) {
   const worker = await getWorker();
   const { data: { text } } = await worker.recognize(imagePath);
@@ -146,56 +168,104 @@ async function extractTextFromRTF(rtfPath) {
 
 // Extract links from text using regex patterns
 function extractLinks(text) {
+  // Validate input
+  if (typeof text !== 'string') {
+    console.warn('extractLinks: text parameter is not a string, defaulting to empty string');
+    text = String(text || '');
+  }
+  
   const linkPatterns = [
-    // URLs (more specific to avoid duplicates)
     /https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi,
     // Email addresses
     /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi,
-    // File paths (basic) - but not URLs
     /(?<!https?:)\/[^\s<>"{}|\\^`\[\]]+/gi
   ];
 
   const links = new Set();
   
-  linkPatterns.forEach(pattern => {
-    const matches = text.match(pattern);
-    if (matches) {
-      matches.forEach(match => {
-        // Clean up the link
-        const cleanLink = match.replace(/[.,;!?]+$/, '');
-        if (cleanLink.length > 3) { // Minimum length check
-          // Avoid adding duplicate patterns
-          if (!links.has(cleanLink) && !links.has(cleanLink.replace(/^\/+/, ''))) {
-            links.add(cleanLink);
+  try {
+    linkPatterns.forEach(pattern => {
+      const matches = text.match(pattern);
+      if (matches) {
+        matches.forEach(match => {
+          const cleanLink = match.replace(/[.,;!?]+$/, '');
+          if (cleanLink.length > 3) { 
+            if (!links.has(cleanLink) && !links.has(cleanLink.replace(/^\/+/, ''))) {
+              links.add(cleanLink);
+            }
           }
-        }
-      });
-    }
-  });
+        });
+      }
+    });
+  } catch (error) {
+    console.warn('Error processing link patterns:', error.message);
+  }
 
   return Array.from(links);
 }
 
-// Make links clickable by wrapping them in HTML
+// Save links to a JSON file for later use in tests
+async function saveLinksToJson(links, filePath, outputDir = './extracted-links') {
+  try {
+    // Create output directory if it doesn't exist
+    await fs.ensureDir(outputDir);
+    
+    // Generate filename based on original file
+    const baseName = path.basename(filePath, path.extname(filePath));
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const jsonFileName = `${baseName}_links_${timestamp}.json`;
+    const jsonFilePath = path.join(outputDir, jsonFileName);
+    
+    // Prepare data to save
+    const linkData = {
+      originalFile: filePath,
+      extractedAt: new Date().toISOString(),
+      totalLinks: links.length,
+      links: links.map((link, index) => ({
+        id: index + 1,
+        url: link,
+        type: link.includes('@') ? 'email' : 
+              link.startsWith('http') ? 'url' : 
+              link.startsWith('/') ? 'file-path' : 'other'
+      }))
+    };
+    
+    // Save to JSON file
+    await fs.writeJson(jsonFilePath, linkData, { spaces: 2 });
+    
+    console.log(`✅ Links saved to: ${jsonFilePath}`);
+    console.log(`   Total links: ${links.length}`);
+    
+    return jsonFilePath;
+  } catch (error) {
+    console.error('Error saving links to JSON:', error.message);
+    throw error;
+  }
+}
+
 function makeLinksClickable(text, links) {
   let clickableText = text;
   
-  // Sort links by length (longest first) to avoid partial replacements
+  // Validate that links is an array
+  if (!Array.isArray(links)) {
+    console.warn('makeLinksClickable: links parameter is not an array, defaulting to empty array');
+    links = [];
+  }
+  
   const sortedLinks = [...links].sort((a, b) => b.length - a.length);
   
   sortedLinks.forEach(link => {
     let displayText = link;
     let href = link;
     
-    // Handle email addresses
     if (link.includes('@')) {
       href = `mailto:${link}`;
     }
-    // Handle file paths
+   
     else if (link.startsWith('/') && !link.startsWith('//')) {
       href = `file://${link}`;
     }
-    // Handle relative URLs
+    
     else if (link.startsWith('./') || link.startsWith('../')) {
       href = link;
     }
@@ -209,14 +279,12 @@ function makeLinksClickable(text, links) {
   return clickableText;
 }
 
-// Check if a file type is supported
 function isSupported(filePath) {
   const mimeType = mime.lookup(filePath);
   const supportedFormats = getSupportedFormats();
   return mimeType && supportedFormats[mimeType];
 }
 
-// Batch process multiple files efficiently
 async function batchExtract(filePaths) {
   const results = [];
   const promises = filePaths.map(async (filePath) => {
@@ -235,7 +303,6 @@ async function batchExtract(filePaths) {
   return results;
 }
 
-// Cleanup resources
 async function cleanup() {
   if (_worker) {
     await _worker.terminate();
@@ -244,10 +311,10 @@ async function cleanup() {
   }
 }
 
-// Export only the essential functions users need
 module.exports = { 
-  extractText,           // Universal text extraction for ALL file types
-  extractLinks,          // Link detection in text
-  makeLinksClickable,    // Convert links to clickable HTML
-  batchExtract           // Process multiple files
+  extractText,
+  extractLinks,
+  makeLinksClickable,
+  batchExtract,
+  saveLinksToJson
 };
