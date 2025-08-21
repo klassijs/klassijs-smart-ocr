@@ -533,12 +533,13 @@ function fixOxfordTestTextMerging(text) {
     // Fix "CERTIFICATE REFERENCE NUMBER" -> "CERTIFICATE REFERENCE NUMBER"
     [/CERTIFICATE REFERENCE NUMBER/g, 'CERTIFICATE REFERENCE NUMBER'],
     
-    // Fix "B 1104" -> "B1 104" (Overall CEFR Level and Overall Score)
-    [/B\s+1\s*1\s*0\s*4/g, 'B1 104'],
+    // Fix merged CEFR level and score patterns (e.g., "B1104" -> "B1 104")
+    [/([A-Z])\s*(\d{2,3})/g, '$1$2'],
     
-    // Fix "MODULESCOREA 2 (51–80)B 1 (81–110)B 2 (111–140)" -> separate lines
-    [/MODULESCOREA\s*2\s*\(51–80\)B\s*1\s*\(81–110\)B\s*2\s*\(111–140\)/g, 
-     'MODULES\nSCORE\nA2 (51–80)\nB1 (81–110)\nB2 (111–140)'],
+    // Fix merged module score patterns -> separate lines
+    [/MODULESCORE([A-Z]\s*\d+\s*\([^)]+\))+/g, function(match) {
+      return match.replace(/([A-Z]\s*\d+\s*\([^)]+\))/g, '\n$1');
+    }],
     
     // Fix "SCORECEFR" -> "SCORE\nCEFR"
     [/SCORECEFR/g, 'SCORE\nCEFR'],
@@ -563,26 +564,16 @@ function fixOxfordTestTextMerging(text) {
     // Fix "A 032" -> "AM032"
     [/A\s+0\s*3\s*2/g, 'AM032'],
     
-    // Fix "20 February 2009628253" -> "20 February 2009\n628253"
-    [/(\d{1,2}\s+[A-Za-z]+\s+\d{4})(\d{6})/g, '$1\n$2'],
+    // Fix merged date and number patterns -> separate lines
+    [/(\d{1,2}\s+[A-Za-z]+\s+\d{4})(\d{6,})/g, '$1\n$2'],
     
-    // Fix "TestingTT 1 regression" -> "TestingTT1 regression"
-    [/TestingTT\s+1\s+regression/g, 'TestingTT1 regression'],
+
     
-    // Fix "B 2 (111–140)" -> "B2 (111–140)"
-    [/B\s+2\s*\(111–140\)/g, 'B2 (111–140)'],
+    // Fix merged CEFR level patterns (e.g., "B 2" -> "B2")
+    [/([A-Z])\s+(\d+)/g, '$1$2'],
     
-    // Fix "A 2 (51–80)" -> "A2 (51–80)"
-    [/A\s+2\s*\(51–80\)/g, 'A2 (51–80)'],
-    
-    // Fix "B 1 (81–110)" -> "B1 (81–110)"
-    [/B\s+1\s*\(81–110\)/g, 'B1 (81–110)'],
-    
-    // Fix "171–200 C 2" -> "171–200\nC2"
-    [/(\d+–\d+)\s+C\s+2/g, '$1\nC2'],
-    
-    // Fix "141–170\n111–140\n81–110\n51–80\n21–50\n1–20" (ensure proper line breaks)
-    [/(\d+–\d+)\s+(\d+–\d+)\s+(\d+–\d+)\s+(\d+–\d+)\s+(\d+–\d+)\s+(\d+–\d+)/g, '$1\n$2\n$3\n$4\n$5\n$6'],
+    // Fix merged score range patterns -> separate lines
+    [/(\d+–\d+)\s+(\d+–\d+)/g, '$1\n$2'],
   ];
   
   // Apply specific fixes
@@ -1309,102 +1300,81 @@ function extractOxfordTestStructuredData(text) {
   
   const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
   
-  // Extract test taker name
+  // Extract test taker name (generic pattern)
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    if (line.includes('TestingTT') || line.includes('regression')) {
+    // Look for any line that's not all caps and not a number
+    if (!line.match(/^[A-Z\s]+$/) && !line.match(/^\d+$/) && line.length > 5) {
       data.testTaker.name = line.trim();
       break;
     }
   }
   
-  // Fallback: Try more flexible patterns
-  if (!data.testTaker.name) {
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      if (line.toLowerCase().includes('testing') || line.toLowerCase().includes('regression')) {
-        data.testTaker.name = line.trim();
-        break;
-      }
-      // Look for any line that's not all caps and not a number
-      if (!line.match(/^[A-Z\s]+$/) && !line.match(/^\d+$/) && line.length > 5) {
-        data.testTaker.name = line.trim();
-        break;
-      }
-    }
-  }
-  
-  // Extract date of birth
+  // Extract date of birth (generic pattern)
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    if (line.includes('February') && line.includes('2009')) {
+    if (line.match(/\d{1,2}\s+[A-Za-z]+\s+\d{4}/)) {
       data.testTaker.dateOfBirth = line.trim();
       break;
     }
   }
   
-  // Extract test taker number
+  // Extract test taker number (generic pattern)
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    if (line === '628253') {
+    if (line.match(/^\d{6,}$/)) {
       data.testTaker.number = line.trim();
       break;
     }
   }
   
   // Set certificate reference
-  data.testTaker.certificateRef = data.testTaker.number || '628253';
+  data.testTaker.certificateRef = data.testTaker.number || 'Unknown';
   
-  // Extract test scores
+  // Extract test scores (generic pattern)
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     
-    if (line === '125') {
-      data.testResults.speaking = { score: 125, date: '03 June 2025' };
-    }
-    
-    if (line === '140') {
-      data.testResults.listening = { score: 140, date: '03 June 2025' };
-    }
-    
-    if (line === '38') {
-      data.testResults.reading = { score: 38, date: '03 June 2025' };
-    }
-    
-    if (line === '113') {
-      data.testResults.writing = { score: 113, date: '03 June 2025' };
+    // Look for score patterns (numbers in reasonable ranges)
+    if (line.match(/^\d{2,3}$/)) {
+      const score = parseInt(line);
+      if (score >= 20 && score <= 200) {
+        // Try to identify score type based on context
+        if (!data.testResults.speaking) {
+          data.testResults.speaking = { score: score, date: 'Unknown' };
+        } else if (!data.testResults.listening) {
+          data.testResults.listening = { score: score, date: 'Unknown' };
+        } else if (!data.testResults.reading) {
+          data.testResults.reading = { score: score, date: 'Unknown' };
+        } else if (!data.testResults.writing) {
+          data.testResults.writing = { score: score, date: 'Unknown' };
+        }
+      }
     }
   }
   
-  // Extract overall results
+  // Extract overall results (generic pattern)
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     
-    // Look for the "B 1104" pattern
-    if (line.match(/B\s*1\s*1\s*0\s*4/)) {
-      data.overallResults.cefrLevel = 'B1';
-      data.overallResults.score = 104;
-      break;
-    }
-    
     // Look for CEFR level patterns
-    if (!data.overallResults.overallcefrLevel && line.match(/^[A-Z]\d$/)) {
-      data.overallResults.overallcefrLevel = line;
+    if (!data.overallResults.cefrLevel && line.match(/^[A-Z]\d$/)) {
+      data.overallResults.cefrLevel = line;
     }
     
-    // Look for overall score (3-digit number in 100-140 range)
-    if (!data.overallResults.score && line.match(/^\d{3}$/) && parseInt(line) >= 100 && parseInt(line) <= 140) {
+    // Look for overall score (3-digit number in reasonable range)
+    if (!data.overallResults.score && line.match(/^\d{3}$/) && parseInt(line) >= 50 && parseInt(line) <= 200) {
       data.overallResults.score = parseInt(line);
     }
   }
   
   // Set fallback values if not found
-  if (!data.overallResults.overallcefrLevel) {
-    data.overallResults.overallcefrLevel = 'B1';
+  if (!data.overallResults.cefrLevel) {
+    data.overallResults.cefrLevel = 'Unknown';
   }
   
   if (!data.overallResults.score) {
-    data.overallResults.score = 104;
+    data.overallResults.score = 0;
   }
   
   return data;
