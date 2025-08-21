@@ -1,3 +1,7 @@
 .idea
 .DS_Store
 node_modules
+
+ocrExtractedContent
+extracted-links
+shared-objects/extracted-links

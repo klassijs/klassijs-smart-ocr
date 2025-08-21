@@ -387,7 +387,7 @@ function reconstructMixedText(text) {
 function shouldStartNewContentBlock(currentLine, nextLine, currentBlock) {
   // Start new block if:
   // 1. Current line is a major section header (document title, main sections)
-  if (currentLine.match(/^(oxford test|cefr level|overall score|test taker|speaking|listening|reading|writing|modules|certificate)/i)) {
+  if (currentLine.match(/^(oxford test|overall cefr level|overall score|test taker|speaking|listening|reading|writing|modules|certificate)/i)) {
     return true;
   }
   
@@ -403,7 +403,7 @@ function shouldStartNewContentBlock(currentLine, nextLine, currentBlock) {
   }
   
   // 4. Next line looks like it should start a new major section
-  if (nextLine.match(/^(oxford test|cefr level|overall score|test taker|speaking|listening|reading|writing|modules|certificate)/i)) {
+  if (nextLine.match(/^(oxford test|overall cefr level|overall score|test taker|speaking|listening|reading|writing|modules|certificate)/i)) {
     return true;
   }
   
@@ -423,12 +423,12 @@ function shouldStartNewContentBlock(currentLine, nextLine, currentBlock) {
   }
   
   // 8. Oxford Test specific section breaks
-  if (currentLine.match(/^(cefr level|overall score|test taker name|certificate reference number)/i)) {
+  if (currentLine.match(/^(overall cefr level|overall score|test taker name|certificate reference number)/i)) {
     return true;
   }
   
   // 9. Lines that contain merged text patterns (indicate section breaks)
-  if (currentLine.match(/overall scoreoverall cefr level/i) || 
+  if (currentLine.match(/overall score overall cefr level/i) ||
       currentLine.match(/date of birthtest taker number/i) ||
       currentLine.match(/certificate reference number/i)) {
     return true;
@@ -449,7 +449,7 @@ function getContentBlockOrder(block) {
   if (firstLine.includes('test taker') || firstLine.includes('name') || firstLine.includes('date of birth')) return 10;
   
   // Test results
-  if (firstLine.includes('overall score') || firstLine.includes('cefr level')) return 20;
+  if (firstLine.includes('overall score') || firstLine.includes('overall cefr level')) return 20;
   
   // Individual test sections
   if (firstLine.includes('speaking')) return 30;
@@ -533,7 +533,7 @@ function fixOxfordTestTextMerging(text) {
     // Fix "CERTIFICATE REFERENCE NUMBER" -> "CERTIFICATE REFERENCE NUMBER"
     [/CERTIFICATE REFERENCE NUMBER/g, 'CERTIFICATE REFERENCE NUMBER'],
     
-    // Fix "B 1104" -> "B1 104" (CEFR Level and Overall Score)
+    // Fix "B 1104" -> "B1 104" (Overall CEFR Level and Overall Score)
     [/B\s+1\s*1\s*0\s*4/g, 'B1 104'],
     
     // Fix "MODULESCOREA 2 (51–80)B 1 (81–110)B 2 (111–140)" -> separate lines
@@ -1388,8 +1388,8 @@ function extractOxfordTestStructuredData(text) {
     }
     
     // Look for CEFR level patterns
-    if (!data.overallResults.cefrLevel && line.match(/^[A-Z]\d$/)) {
-      data.overallResults.cefrLevel = line;
+    if (!data.overallResults.overallcefrLevel && line.match(/^[A-Z]\d$/)) {
+      data.overallResults.overallcefrLevel = line;
     }
     
     // Look for overall score (3-digit number in 100-140 range)
@@ -1399,8 +1399,8 @@ function extractOxfordTestStructuredData(text) {
   }
   
   // Set fallback values if not found
-  if (!data.overallResults.cefrLevel) {
-    data.overallResults.cefrLevel = 'B1';
+  if (!data.overallResults.overallcefrLevel) {
+    data.overallResults.overallcefrLevel = 'B1';
   }
   
   if (!data.overallResults.score) {

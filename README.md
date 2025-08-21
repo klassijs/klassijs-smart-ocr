@@ -232,7 +232,7 @@ Waits for text to appear in a string.
 #### `extractOxfordTestStructuredData(filePath)`
 Extracts structured data specifically from Oxford Test documents.
 - **Parameters:** `filePath` (string) - Path to Oxford Test document
-- **Returns:** Promise<object> - Structured test data including scores, dates, and CEFR levels
+- **Returns:** Promise<object> - Structured test data including scores, dates, and overall CEFR level
 
 ---
 
@@ -306,7 +306,7 @@ console.log('Structured data:', data);
 
 // Extract Oxford Test specific data
 const oxfordData = await extractOxfordTestStructuredData('./oxford-test.pdf');
-console.log('CEFR Level:', oxfordData.overallResults.cefrLevel);
+console.log('Overall CEFR Level:', oxfordData.overallResults.cefrLevel);
 console.log('Overall Score:', oxfordData.overallResults.score);
 ```
 
@@ -406,7 +406,7 @@ The system automatically detects:
 SmartOCR includes specialized support for Oxford Test documents:
 
 - **Automatic Score Extraction**: Reading, Writing, Speaking, and Listening scores
-- **CEFR Level Detection**: Automatic CEFR level identification (A1-C2)
+- **Overall CEFR Level Detection**: Automatic overall CEFR level identification (A1-C2)
 - **Date Extraction**: Test and certificate dates
 - **Structured Output**: Clean, organized data structure for test results
 

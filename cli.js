@@ -123,7 +123,7 @@ async function main() {
           content += `Writing: ${result.structuredData.testResults?.writing?.score || 'null'} (03 June 2025)\n\n`;
           content += `OVERALL RESULTS:\n`;
           content += `Overall Score: ${result.structuredData.overallResults?.score || 'NOT FOUND'}\n`;
-          content += `CEFR Level: ${result.structuredData.overallResults?.cefrLevel || 'NOT FOUND'}\n\n`;
+          content += `Overall CEFR Level: ${result.structuredData.overallResults?.cefrLevel || 'NOT FOUND'}\n\n`;
           content += `══════════════════════════════════════════════════\n\n`;
         }
         
